@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>DockItem.qml</file>
+        <file>TaskBar.qml</file>
+        <file>AppItem.qml</file>
+        <file>Dock.qml</file>
+    </qresource>
+</RCC>
