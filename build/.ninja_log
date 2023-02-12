@@ -1,0 +1,20 @@
+# ninja log v5
+1072	14354	1676133653900513401	CMakeFiles/avdan-os-dock.dir/avdan-os-dock_autogen/mocs_compilation.cpp.o	c2f467a4711eda11
+7419	12572	1676133652119415541	CMakeFiles/avdan-os-dock.dir/systemappitem.cpp.o	59d007ce916c6b11
+1150	9208	1676133648751230209	CMakeFiles/avdan-os-dock.dir/systemappmonitor.cpp.o	4e4de2f6e2132b99
+10816	16699	1676133656235641553	CMakeFiles/avdan-os-dock.dir/xwindowinterface.cpp.o	674d17c087130e73
+16912	18074	1676133657613717105	avdan-os-dock	2508cc0d6deaca63
+1104	16912	1676133656457653728	CMakeFiles/avdan-os-dock.dir/main.cpp.o	70cd07e20fe62b59
+1134	16338	1676133655882622191	CMakeFiles/avdan-os-dock.dir/appmodel.cpp.o	a2c46bc649a579c7
+9	59	1676135185116975765	avdan-os-dock_autogen/mocs_compilation.cpp	cca15ad4c003bca0
+9212	16020	1676133655567604907	CMakeFiles/avdan-os-dock.dir/processprovider.cpp.o	5c54278a1edaa57e
+9	59	1676135185116975765	/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/avdan-os-dock_autogen/timestamp	cca15ad4c003bca0
+9	59	1676135185116975765	/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/avdan-os-dock_autogen/mocs_compilation.cpp	cca15ad4c003bca0
+1135	7417	1676133646964131732	CMakeFiles/avdan-os-dock.dir/utils.cpp.o	b45852e8bb602c6f
+12572	13032	1676133652555439504	CMakeFiles/avdan-os-dock.dir/avdan-os-dock_autogen/EWIEGA46WW/qrc_qml.cpp.o	d3e14b091661bc62
+9	59	1676135185116975765	avdan-os-dock_autogen/timestamp	cca15ad4c003bca0
+1018	1072	1676133640613780944	avdan-os-dock_autogen/EWIEGA46WW/qrc_qml.cpp	67d85a279f67f9e6
+1018	1072	1676133640613780944	/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/avdan-os-dock_autogen/EWIEGA46WW/qrc_qml.cpp	67d85a279f67f9e6
+1119	10815	1676133650361318846	CMakeFiles/avdan-os-dock.dir/dockwindow.cpp.o	d761b9b246758e90
+8	2075	1676135204030093242	CMakeFiles/avdan-os-dock.dir/utils.cpp.o	b45852e8bb602c6f
+2075	2903	1676135204854141754	avdan-os-dock	2508cc0d6deaca63

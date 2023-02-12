@@ -1,6 +1,5 @@
 #include <QQuickWindow>
 
-
 class DockWindow : public QQuickWindow
 {
     Q_OBJECT

@@ -1,0 +1,26 @@
+{
+	"BUILD_DIR" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/avdan-os-dock_autogen",
+	"CMAKE_BINARY_DIR" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock/build",
+	"CMAKE_CURRENT_BINARY_DIR" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock/build",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock",
+	"CMAKE_SOURCE_DIR" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock",
+	"INCLUDE_DIR" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/avdan-os-dock_autogen/include",
+	"INPUTS" : 
+	[
+		"/home/yegender/Documents/HDD/Projs/avdan-os-dock/DockItem.qml",
+		"/home/yegender/Documents/HDD/Projs/avdan-os-dock/TaskBar.qml",
+		"/home/yegender/Documents/HDD/Projs/avdan-os-dock/Dock.qml",
+		"/home/yegender/Documents/HDD/Projs/avdan-os-dock/AppItem.qml",
+		"/home/yegender/Documents/HDD/Projs/avdan-os-dock/main.qml"
+	],
+	"LOCK_FILE" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/avdan-os-dock_autogen.dir/AutoRcc_qml_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "-name", "qml" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_qml.cpp",
+	"RCC_EXECUTABLE" : "/usr/bin/rcc",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/avdan-os-dock_autogen.dir/AutoRcc_qml_EWIEGA46WW_Used.txt",
+	"SOURCE" : "/home/yegender/Documents/HDD/Projs/avdan-os-dock/qml.qrc",
+	"VERBOSITY" : 0
+}

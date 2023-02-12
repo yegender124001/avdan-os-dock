@@ -1,0 +1,10 @@
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/KF5WindowSystem_QCH.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/avdan-os-dock.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/edit_cache.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/rebuild_cache.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/list_install_components.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/install.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/install/local.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/install/strip.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/avdan-os-dock_autogen_timestamp_deps.dir
+/home/yegender/Documents/HDD/Projs/avdan-os-dock/build/CMakeFiles/avdan-os-dock_autogen.dir

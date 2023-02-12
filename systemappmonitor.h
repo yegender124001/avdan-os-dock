@@ -14,14 +14,14 @@ public:
     static SystemAppMonitor *self();
 
     SystemAppItem *find(const QString &filePath);
-    QList <SystemAppItem *> applications() const { return m_items; }
+    QList<SystemAppItem *> applications() const { return m_items; }
 signals:
     void refreshed();
 private:
     void refresh();
     void addApplication(const QString &filePath);
     void removeApplication(SystemAppItem *item);
-
+public:
     QList <SystemAppItem *> m_items;
 };
 
