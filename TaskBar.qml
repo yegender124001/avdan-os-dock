@@ -18,30 +18,31 @@ DockWindow{
     }
     Row{
         id:itemRow0
-        spacing: 5
+        spacing: 10
         height:parent.height-10
         x:5
         y:5
-        /*Pinned Apps*/
         Repeater{
             id: repeater
             model:appModel
             DockItem{
                 icon.name:model.iconName
-                icon.width: 48
-                icon.height: 48
+                icon.width: 60
+                icon.height: 60
+                width: 50
+                height:50
                 icon.color:"transparent"
-                onClicked: appModel.raiseWindow(model.appId)
+                onClicked: appModel.clicked(model.appId)
                 Rectangle{
                     color:model.isActive ? "#44ff44" : "white"
                     anchors.bottom:parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width:parent.width-10
+                    width:10
                     height:3
+                    anchors.bottomMargin: 3
                     radius:height
                 }
             }
         }
     }
-    
 }

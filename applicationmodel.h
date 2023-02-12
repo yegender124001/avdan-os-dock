@@ -75,4 +75,4 @@ private:
     QList<ApplicationItem *> m_appItems;
 };
 
-#endif // APPLICATIONMODEL_H
+#endif

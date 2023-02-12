@@ -25,6 +25,8 @@ set(PROJECT_SOURCES
         systemappitem.h systemappitem.cpp
         processprovider.h processprovider.cpp
         xwindowinterface.h xwindowinterface.cpp
+        hamburgermenu.h hamburgermenu.cpp
+        tooltip.h tooltip.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

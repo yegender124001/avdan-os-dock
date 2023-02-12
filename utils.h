@@ -13,9 +13,9 @@ class Utils : public QObject
 public:
     struct AppData
     {
-        QString id; // Application id (*.desktop sans extension).
-        QString name; // Application name.
-        QString genericName; // Generic application name.
+        QString id;
+        QString name;
+        QString genericName;
         QIcon icon;
         QUrl url;
         bool skipTaskbar = false;
@@ -39,4 +39,4 @@ private:
     SystemAppMonitor *m_sysAppMonitor;
 };
 
-#endif // UTILS_H
+#endif

@@ -26,6 +26,7 @@ Button{
             }
         }
     ]
+    /*
     transitions: Transition {
         reversible: true
         ParallelAnimation{
@@ -37,6 +38,7 @@ Button{
             }
         }
     }
+    */
     background: Rectangle{
         id: background
         color: hoverColor

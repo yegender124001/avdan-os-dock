@@ -5,5 +5,10 @@
         <file>TaskBar.qml</file>
         <file>AppItem.qml</file>
         <file>Dock.qml</file>
+        <file>HamburgerMenu.qml</file>
+        <file>Tooltip.qml</file>
+        <file>MainDock.qml</file>
+        <file>NotificationDock.qml</file>
+        <file>SystemDock.qml</file>
     </qresource>
 </RCC>

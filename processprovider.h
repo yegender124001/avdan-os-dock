@@ -12,4 +12,4 @@ public:
     Q_INVOKABLE static bool startDetached(const QString &exec, QStringList args = QStringList());
 };
 
-#endif // PROCESSPROVIDER_H
+#endif

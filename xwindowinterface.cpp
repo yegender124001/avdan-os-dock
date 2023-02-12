@@ -10,8 +10,7 @@
 #include <KWindowEffects>
 #include <KWindowSystem>
 #include <KWindowInfo>
-
-// X11
+#include <kx11extras.h>
 #include <NETWM>
 
 static XWindowInterface *INSTANCE = nullptr;
@@ -27,35 +26,30 @@ XWindowInterface *XWindowInterface::instance()
 XWindowInterface::XWindowInterface(QObject *parent)
     : QObject(parent)
 {
-    connect(KWindowSystem::self(), &KWindowSystem::windowAdded, this, &XWindowInterface::onWindowadded);
-    connect(KWindowSystem::self(), &KWindowSystem::windowRemoved, this, &XWindowInterface::windowRemoved);
-    connect(KWindowSystem::self(), &KWindowSystem::activeWindowChanged, this, &XWindowInterface::activeChanged);
+    connect(KX11Extras::self(), &KX11Extras::windowAdded, this, &XWindowInterface::onWindowadded);
+    connect(KX11Extras::self(), &KX11Extras::windowRemoved, this, &XWindowInterface::windowRemoved);
+    connect(KX11Extras::self(), &KX11Extras::activeWindowChanged, this, &XWindowInterface::activeChanged);
 }
 
-void XWindowInterface::enableBlurBehind(QWindow *view, bool enable, const QRegion &region)
-{
-    KWindowEffects::enableBlurBehind(view->winId(), enable, region);
-}
 
 WId XWindowInterface::activeWindow()
 {
-    return KWindowSystem::activeWindow();
+    return KX11Extras::activeWindow();
 }
 
 void XWindowInterface::minimizeWindow(WId win)
 {
-    KWindowSystem::minimizeWindow(win);
+    KX11Extras::minimizeWindow(win);
 }
 
 void XWindowInterface::closeWindow(WId id)
 {
-    // FIXME: Why there is no such thing in KWindowSystem??
     NETRootInfo(QX11Info::connection(), NET::CloseWindow).closeWindowRequest(id);
 }
 
 void XWindowInterface::forceActiveWindow(WId win)
 {
-    KWindowSystem::forceActiveWindow(win);
+    KX11Extras::forceActiveWindow(win);
 }
 
 QMap<QString, QVariant> XWindowInterface::requestInfo(quint64 wid)
@@ -75,7 +69,7 @@ QMap<QString, QVariant> XWindowInterface::requestInfo(quint64 wid)
     const QString winClass = QString(winfo.windowClassClass());
 
     result.insert("iconName", winClass.toLower());
-    result.insert("active", wid == KWindowSystem::activeWindow());
+    result.insert("active", wid == KX11Extras::activeWindow());
     result.insert("visibleName", winfo.visibleName());
     result.insert("id", winClass);
 
@@ -109,7 +103,6 @@ bool XWindowInterface::isAcceptableWindow(quint64 wid)
     if (info.hasState(NET::SkipTaskbar) || info.hasState(NET::SkipPager))
         return false;
 
-    // WM_TRANSIENT_FOR hint not set - normal window
     WId transFor = info.transientFor();
     if (transFor == 0 || transFor == wid || transFor == (WId) QX11Info::appRootWindow())
         return true;
@@ -126,7 +119,7 @@ bool XWindowInterface::isAcceptableWindow(quint64 wid)
 
 void XWindowInterface::startInitWindows()
 {
-    for (auto wid : KWindowSystem::self()->windows()) {
+    for (auto wid : KX11Extras::self()->windows()) {
         onWindowadded(wid);
     }
 }

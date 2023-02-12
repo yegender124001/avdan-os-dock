@@ -34,9 +34,7 @@ QStringList Utils::commandFromPid(quint32 pid)
     if (file.open(QIODevice::ReadOnly)) {
         QByteArray cmd = file.readAll();
 
-        // ref: https://github.com/KDE/kcoreaddons/blob/230c98aa7e01f9e36a9c2776f3633182e6778002/src/lib/util/kprocesslist_unix.cpp#L137
         if (!cmd.isEmpty()) {
-            // extract non-truncated name from cmdline
             int zeroIndex = cmd.indexOf('\0');
             int processNameStart = cmd.lastIndexOf('/', zeroIndex);
             if (processNameStart == -1) {
@@ -47,13 +45,11 @@ QStringList Utils::commandFromPid(quint32 pid)
 
             QString name = QString::fromLocal8Bit(cmd.mid(processNameStart, zeroIndex - processNameStart));
 
-            // reion: Remove parameters
             name = name.split(' ').first();
 
             cmd.replace('\0', ' ');
             QString command = QString::fromLocal8Bit(cmd).trimmed();
 
-            // There may be parameters.
             if (command.split(' ').size() > 1) {
                 command = command.split(' ').first();
             }
@@ -69,8 +65,6 @@ QString Utils::desktopPathFromMetadata(const QString &appId, quint32 pid, const 
 {
     QStringList commands = commandFromPid(pid);
 
-    // The value returned from the commandFromPid() may be empty.
-    // Calling first() and last() below will cause the statusbar to crash.
     if (commands.isEmpty() || xWindowWMClassName.isEmpty())
         return "";
 
@@ -84,7 +78,6 @@ QString Utils::desktopPathFromMetadata(const QString &appId, quint32 pid, const 
 
     if (!appId.isEmpty() && !xWindowWMClassName.isEmpty()) {
         for (SystemAppItem *item : m_sysAppMonitor->applications()) {
-            // Start search.
             const QFileInfo desktopFileInfo(item->path);
 
             bool isExecPath = QFile::exists(item->exec);
@@ -94,10 +87,6 @@ QString Utils::desktopPathFromMetadata(const QString &appId, quint32 pid, const 
                 founded = true;
             }
 
-            // StartupWMClass=STRING
-            // If true, it is KNOWN that the application will map at least one
-            // window with the given string as its WM class or WM name hint.
-            // ref: https://specifications.freedesktop.org/startup-notification-spec/startup-notification-0.1.txt
             if (item->startupWMClass.startsWith(appId, Qt::CaseInsensitive) ||
                 item->startupWMClass.startsWith(xWindowWMClassName, Qt::CaseInsensitive))
                 founded = true;
@@ -105,26 +94,21 @@ QString Utils::desktopPathFromMetadata(const QString &appId, quint32 pid, const 
             if (!founded && item->iconName.startsWith(xWindowWMClassName, Qt::CaseInsensitive))
                 founded = true;
 
-            // Icon name and cmdline.
             if (!founded && (item->iconName == command || item->iconName == commandName))
                 founded = true;
 
-            // Exec name and cmdline.
             if (!founded && (item->exec == command || item->exec == commandName))
                 founded = true;
 
-            // Try matching mapped name against 'Name'.
             if (!founded && item->name.startsWith(xWindowWMClassName, Qt::CaseInsensitive))
                 founded = true;
 
-            // exec
             if (!founded && item->exec.startsWith(xWindowWMClassName, Qt::CaseInsensitive))
                 founded = true;
 
             if (!founded && desktopFileInfo.baseName().startsWith(xWindowWMClassName, Qt::CaseInsensitive))
                 founded = true;
 
-            // For exec path.
             if (isExecPath && !founded && (command.contains(item->exec) || commandName.contains(item->exec))) {
                 founded = true;
             }

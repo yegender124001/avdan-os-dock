@@ -29,4 +29,4 @@ private:
     QList<SystemAppItem *> m_items;
 };
 
-#endif // SYSTEMAPPMONITOR_H
+#endif

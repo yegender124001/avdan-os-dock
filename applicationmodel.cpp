@@ -2,7 +2,6 @@
 #include "processprovider.h"
 #include "utils.h"
 
-//#include <QProcess>
 
 ApplicationModel::ApplicationModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -88,9 +87,6 @@ void ApplicationModel::addItem(const QString &desktopFile)
     item->desktopPath = desktopFile;
     item->isPinned = true;
 
-    // First use filename as the id of the item.
-    // Why not use exec? Because exec contains the file path,
-    // QSettings will have problems, resulting in unrecognized next time.
     QFileInfo fi(desktopFile);
     item->id = fi.baseName();
 
@@ -138,14 +134,10 @@ void ApplicationModel::clicked(const QString &id)
     if (!item)
         return;
 
-    // Application Item that has been pinned,
-    // We need to open it.
     if (item->wids.isEmpty()) {
-        // open application
         openNewInstance(item->id);
     }
-    // Multiple windows have been opened and need to switch between them,
-    // The logic here needs to be improved.
+
     else if (item->wids.count() > 1) {
         item->currentActive++;
 
@@ -229,7 +221,6 @@ void ApplicationModel::unPin(const QString &appId)
     item->isPinned = false;
     handleDataChangedFromItem(item);
 
-    // Need to be removed after unpin
     if (item->wids.isEmpty()) {
         int index = indexOf(item->id);
         if (index != -1) {
@@ -249,7 +240,6 @@ void ApplicationModel::updateGeometries(const QString &id, QRect rect)
 {
     ApplicationItem *item = findItemById(id);
 
-    // If not found
     if (!item)
         return;
 
@@ -333,7 +323,6 @@ void ApplicationModel::initPinnedApplications()
                                                            : &systemSettings;
     QStringList groups = set->childGroups();
 
-    // Pinned Apps
     for (int i = 0; i < groups.size(); ++i) {
         for (const QString &id : groups) {
             set->beginGroup(id);
@@ -352,7 +341,6 @@ void ApplicationModel::initPinnedApplications()
                     continue;
                 }
 
-                // Read from desktop file.
                 if (!item->desktopPath.isEmpty()) {
                     QMap<QString, QString> desktopInfo = Utils::instance()->readInfoFromDesktop(item->desktopPath);
                     item->iconName = desktopInfo.value("Icon");
@@ -360,7 +348,6 @@ void ApplicationModel::initPinnedApplications()
                     item->exec = desktopInfo.value("Exec");
                 }
 
-                // Read from config file.
                 if (item->iconName.isEmpty())
                     item->iconName = set->value("Icon").toString();
 
@@ -427,11 +414,10 @@ void ApplicationModel::onWindowAdded(quint64 wid)
 
     QString desktopPath = m_iface->desktopFilePath(wid);
     ApplicationItem *desktopItem = findItemByDesktop(desktopPath);
-    
-    // Use desktop find
+
     if (!desktopPath.isEmpty() && desktopItem != nullptr) {
         desktopItem->wids.append(wid);
-        // Need to update application active status.
+
         desktopItem->isActive = info.value("active").toBool();
 
         if (desktopItem->id != id) {
@@ -441,18 +427,18 @@ void ApplicationModel::onWindowAdded(quint64 wid)
 
         handleDataChangedFromItem(desktopItem);
     }
-    // Find from id
+
     else if (contains(id)) {
         for (ApplicationItem *item : m_appItems) {
             if (item->id == id) {
                 item->wids.append(wid);
-                // Need to update application active status.
+
                 item->isActive = info.value("active").toBool();
                 handleDataChangedFromItem(item);
             }
         }
     }
-    // New item needs to be added.
+
     else {
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         ApplicationItem *item = new ApplicationItem;
@@ -485,7 +471,6 @@ void ApplicationModel::onWindowRemoved(quint64 wid)
     if (!item)
         return;
 
-    // Remove from wid list.
     item->wids.removeOne(wid);
 
     if (item->currentActive >= item->wids.size())
@@ -494,7 +479,6 @@ void ApplicationModel::onWindowRemoved(quint64 wid)
     handleDataChangedFromItem(item);
 
     if (item->wids.isEmpty()) {
-        // If it is not fixed to the dock, need to remove it.
         if (!item->isPinned) {
             int index = indexOf(item->id);
 
@@ -513,9 +497,6 @@ void ApplicationModel::onWindowRemoved(quint64 wid)
 
 void ApplicationModel::onActiveChanged(quint64 wid)
 {
-    // Using this method will cause the listview scrollbar to reset.
-    // beginResetModel();
-
     for (ApplicationItem *item : m_appItems) {
         if (item->isActive != item->wids.contains(wid)) {
             item->isActive = item->wids.contains(wid);

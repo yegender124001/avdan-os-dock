@@ -20,4 +20,4 @@ public:
     QStringList args;
 };
 
-#endif // SYSTEMAPPITEM_H
+#endif

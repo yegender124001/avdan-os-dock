@@ -1,10 +1,7 @@
 #ifndef XWINDOWINTERFACE_H
 #define XWINDOWINTERFACE_H
 
-#include "applicationitem.h"
 #include <QObject>
-
-// KLIB
 #include <KWindowInfo>
 #include <KWindowEffects>
 
@@ -15,9 +12,6 @@ class XWindowInterface : public QObject
 public:
     static XWindowInterface *instance();
     explicit XWindowInterface(QObject *parent = nullptr);
-
-    void enableBlurBehind(QWindow *view, bool enable = true, const QRegion &region = QRegion());
-
     WId activeWindow();
     void minimizeWindow(WId win);
     void closeWindow(WId id);
@@ -42,4 +36,4 @@ private:
     void onWindowadded(quint64 wid);
 };
 
-#endif // XWINDOWINTERFACE_H
+#endif

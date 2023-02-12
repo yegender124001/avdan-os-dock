@@ -6,11 +6,8 @@
 class ApplicationItem
 {
 public:
-    // window class
     QString id;
-    // icon name
     QString iconName;
-    // visible name
     QString visibleName;
     QString desktopPath;
     QString exec;
@@ -27,4 +24,4 @@ public:
     }
 };
 
-#endif // APPLICATIONITEM_H
+#endif
