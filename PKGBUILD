@@ -3,8 +3,13 @@ pkgver="0.0.1"
 pkgrel="0"
 pkgdesc="Dock like in Avdan OS"
 arch=("x86_64")
-depends=("qt5"
-	"kwindowsystem")
+depends=(
+"qt5-base"
+"qt5-quickcontrols2"
+"qt5-quickcontrols"
+"qt5-graphicaleffects"
+"qt5-x11extras"
+"kwindowsystem")
 source=("AppItem.qml"
 "applicationitem.h"
 "applicationmodel.cpp"
