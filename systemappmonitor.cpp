@@ -1,27 +1,20 @@
 #include "systemappmonitor.h"
-#include "qdiriterator.h"
-#include "qlocale.h"
+
 #include <QFileSystemWatcher>
-#include <QSettings>
 #include <QRegularExpression>
-#include <QDir>
+#include <QDirIterator>
+#include <QSettings>
+#include <QLocale>
+
+#define SystemApplicationsFolder "/usr/share/applications"
 
 static SystemAppMonitor *SELF = nullptr;
 
-SystemAppMonitor::SystemAppMonitor(QObject *parent)
-    : QObject(parent)
-{
-    QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
-    watcher->addPath("/usr/share/applications");
-    connect(watcher, &QFileSystemWatcher::directoryChanged, this, &SystemAppMonitor::refresh);
-    refresh();
-}
-
-static QByteArray detectDesktopEnviornment()
+static QByteArray detectDesktopEnvironment()
 {
     const QByteArray desktop = qgetenv("XDG_CURRENT_DESKTOP");
 
-    if(!desktop.isEmpty())
+    if (!desktop.isEmpty())
         return desktop.toUpper();
 
     return QByteArray("UNKNOWN");
@@ -33,6 +26,15 @@ SystemAppMonitor *SystemAppMonitor::self()
         SELF = new SystemAppMonitor;
 
     return SELF;
+}
+
+SystemAppMonitor::SystemAppMonitor(QObject *parent)
+    : QObject(parent)
+{
+    QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
+    watcher->addPath(SystemApplicationsFolder);
+    connect(watcher, &QFileSystemWatcher::directoryChanged, this, &SystemAppMonitor::refresh);
+    refresh();
 }
 
 SystemAppMonitor::~SystemAppMonitor()
@@ -57,7 +59,7 @@ void SystemAppMonitor::refresh()
         addedEntries.append(item->path);
 
     QStringList allEntries;
-    QDirIterator it("/usr/share/applications", { "*.desktop" }, QDir::NoFilter, QDirIterator::Subdirectories);
+    QDirIterator it(SystemApplicationsFolder, { "*.desktop" }, QDir::NoFilter, QDirIterator::Subdirectories);
 
     while (it.hasNext()) {
         const QString &filePath = it.next();
@@ -97,7 +99,7 @@ void SystemAppMonitor::addApplication(const QString &filePath)
 
     if (desktop.contains("OnlyShowIn")) {
         const QString &value = desktop.value("OnlyShowIn").toString();
-        if (!value.contains(detectDesktopEnviornment(), Qt::CaseInsensitive)) {
+        if (!value.contains(detectDesktopEnvironment(), Qt::CaseInsensitive)) {
             return;
         }
     }

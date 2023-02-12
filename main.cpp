@@ -12,10 +12,10 @@ int main(int argc, char *argv[])
 #endif
     QGuiApplication app(argc, argv);
     qmlRegisterType<DockWindow>("Dock",1,0,"DockWindow");
-    qmlRegisterType<AppModel>("Dock",1,0,"AppModel");
+    AppModel model;
     DockWindow dock;
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("DockWindow",&dock);
+    engine.rootContext()->setContextProperty("appModel",&model);
     engine.load(QUrl("qrc:/Dock.qml"));
     return app.exec();
 }

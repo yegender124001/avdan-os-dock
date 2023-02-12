@@ -16,7 +16,7 @@ AppModel::AppModel(QObject *parent)
     QTimer::singleShot(100, m_iface, &XWindowInterface::startInitWindows);
 }
 
-int AppModel::rowCount(const QModelIndex &parent) const
+int AppModel::rowCount(const QModelIndex &parent = QModelIndex()) const
 {
     Q_UNUSED(parent)
 
@@ -87,7 +87,7 @@ void AppModel::addItem(const QString &desktopFile)
     QFileInfo file(desktopFile);
     item->id = file.baseName();
 
-    m_Items << item;
+    m_Items.append(item);
     endInsertRows();
 
     savePinAndUnpinList();
@@ -280,10 +280,10 @@ bool AppModel::contains(const QString &id)
 {
     for (ApplicationItem *item : m_Items) {
         if (item->id == id)
-            return m_Items.indexOf(item);
+            return true;
     }
 
-    return -1;
+    return false;
 }
 
 int AppModel::indexOf(const QString &id)
@@ -368,16 +368,15 @@ void AppModel::onWindowAdded(quint64 wid)
     QMap<QString, QVariant> info = m_iface->requestInfo(wid);
     const QString id = info.value("id").toString();
 
-
     QString desktopPath = m_iface->desktopFilePath(wid);
     ApplicationItem *desktopItem = findItembyDesktop(desktopPath);
-
     if (!desktopPath.isEmpty() && desktopItem != nullptr) {
         desktopItem->wids.append(wid);
         desktopItem->isActive = info.value("active").toBool();
 
         if (desktopItem->id != id) {
             desktopItem->id = id;
+
             savePinAndUnpinList();
         }
 
@@ -409,7 +408,8 @@ void AppModel::onWindowAdded(quint64 wid)
             item->desktopPath = desktopPath;
         }
 
-        m_Items << item;
+        m_Items.append(item);
+
         endInsertRows();
 
         emit itemAdded();

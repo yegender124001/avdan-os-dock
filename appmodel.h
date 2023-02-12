@@ -24,11 +24,11 @@ public:
         FixedItemRole
     };
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex &parent) const override;
     QHash<int, QByteArray> roleNames() const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    void addItem(const QString &desktopFile);
+    Q_INVOKABLE void addItem(const QString &desktopFile);
     void removeItem(const QString &desktopFile);
     bool desktopContains(const QString &desktopFile);
     bool isDesktopPinned(const QString &desktopFile);

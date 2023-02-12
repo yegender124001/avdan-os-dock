@@ -23,8 +23,6 @@ DockWindow{
         x:5
         y:5
         /*Pinned Apps*/
-
-
         Repeater{
             //model:ListModel{
             //    ListElement{iconName:"konsole"}
@@ -32,19 +30,27 @@ DockWindow{
             //    ListElement{iconName:"kate"}
             //    ListElement{iconName:"kcalc"}
             //}
-            model:AppModel{}
-
+            //model:appModel
+            //delegate:DockItem{
+            //    icon.name:model.iconName
+            //    icon.color:"transparent"
+            //    icon.width: 48
+            //    icon.height: 48
+            //}
+            id: repeater
+            model:5
             DockItem{
-                icon.name:model.iconName
-                icon.color:"transparent"
+                icon.name:model.iconName ? model.iconName : "application-x-desktop"
                 icon.width: 48
                 icon.height: 48
+                onClicked: repeater.model += 5
             }
         }
-        Rectangle{
-            anchors.verticalCenter: parent.verticalCenter
-            width: 1
-            height:30
-        }
+        //Rectangle{
+        //    anchors.verticalCenter: parent.verticalCenter
+        //    width: 1
+        //    height:30
+        //}
     }
+    
 }

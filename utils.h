@@ -27,7 +27,7 @@ public:
 
     static Utils *instance();
 
-    QStringList commandFromPid(qint32 pid);
+    QStringList commandFromPid(quint32 pid);
     QString desktopPathFromMetadata(const QString &appId, quint32 pid = 0,
                                     const QString &xWindowWMClassName = QString());
     QMap<QString, QString> readInfoFromDesktop(const QString &desktopFile);
