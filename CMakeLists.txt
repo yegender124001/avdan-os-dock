@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(avdan-os-dock VERSION 0.1 LANGUAGES CXX)
+project(aos-dock VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -17,7 +17,8 @@ set(PROJECT_SOURCES
         main.cpp
         qml.qrc
         dockwindow.h dockwindow.cpp
-        appmodel.h appmodel.cpp
+        applicationitem.h
+        applicationmodel.h applicationmodel.cpp
         applicationitem.h
         utils.h utils.cpp
         systemappmonitor.h systemappmonitor.cpp

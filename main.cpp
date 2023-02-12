@@ -1,6 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include "appmodel.h"
+#include "applicationmodel.h"
 #include "dockwindow.h"
 #include <QQuickItem>
 #include <QScreen>
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 #endif
     QGuiApplication app(argc, argv);
     qmlRegisterType<DockWindow>("Dock",1,0,"DockWindow");
-    AppModel model;
+    ApplicationModel model;
     DockWindow dock;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("appModel",&model);

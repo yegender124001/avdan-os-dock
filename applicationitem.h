@@ -8,20 +8,14 @@ class ApplicationItem
 public:
     // window class
     QString id;
-
     // icon name
     QString iconName;
-
-    //visible name
+    // visible name
     QString visibleName;
-
-    // desktop file path
     QString desktopPath;
-
-    // exec
     QString exec;
 
-    QList<int> wids;
+    QList<quint64> wids;
 
     int currentActive = 0;
     bool isActive = false;
@@ -31,7 +25,6 @@ public:
     bool operator==(ApplicationItem item) {
         return item.id == this->id;
     }
-
 };
 
 #endif // APPLICATIONITEM_H

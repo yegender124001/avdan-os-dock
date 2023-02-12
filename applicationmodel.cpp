@@ -1,29 +1,31 @@
-#include "appmodel.h"
-#include "applicationitem.h"
-#include "utils.h"
+﻿#include "applicationmodel.h"
 #include "processprovider.h"
-AppModel::AppModel(QObject *parent)
+#include "utils.h"
+
+//#include <QProcess>
+
+ApplicationModel::ApplicationModel(QObject *parent)
     : QAbstractListModel(parent)
-    , m_iface(XWindowInterface::instace())
+    , m_iface(XWindowInterface::instance())
     , m_sysAppMonitor(SystemAppMonitor::self())
 {
-    connect(m_iface, &XWindowInterface::windowAdded, this, &AppModel::onWindowAdded);
-    connect(m_iface, &XWindowInterface::windowRemoved, this, &AppModel::onWindowRemoved);
-    connect(m_iface, &XWindowInterface::activeChanged, this, &AppModel::onActiveChanged);
+    connect(m_iface, &XWindowInterface::windowAdded, this, &ApplicationModel::onWindowAdded);
+    connect(m_iface, &XWindowInterface::windowRemoved, this, &ApplicationModel::onWindowRemoved);
+    connect(m_iface, &XWindowInterface::activeChanged, this, &ApplicationModel::onActiveChanged);
 
     initPinnedApplications();
 
     QTimer::singleShot(100, m_iface, &XWindowInterface::startInitWindows);
 }
 
-int AppModel::rowCount(const QModelIndex &parent = QModelIndex()) const
+int ApplicationModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
 
-    return m_Items.size();
+    return m_appItems.size();
 }
 
-QHash<int, QByteArray> AppModel::roleNames() const
+QHash<int, QByteArray> ApplicationModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[AppIdRole] = "appId";
@@ -37,12 +39,12 @@ QHash<int, QByteArray> AppModel::roleNames() const
     return roles;
 }
 
-QVariant AppModel::data(const QModelIndex &index, int role) const
+QVariant ApplicationModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    ApplicationItem *item = m_Items.at(index.row());
+    ApplicationItem *item = m_appItems.at(index.row());
 
     switch (role) {
     case AppIdRole:
@@ -64,13 +66,15 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
     default:
         return QVariant();
     }
+
     return QVariant();
 }
 
-void AppModel::addItem(const QString &desktopFile)
+void ApplicationModel::addItem(const QString &desktopFile)
 {
-    ApplicationItem *existsItem = findItembyDesktop(desktopFile);
-    if(existsItem) {
+    ApplicationItem *existsItem = findItemByDesktop(desktopFile);
+
+    if (existsItem) {
         existsItem->isPinned = true;
         return;
     }
@@ -84,38 +88,41 @@ void AppModel::addItem(const QString &desktopFile)
     item->desktopPath = desktopFile;
     item->isPinned = true;
 
-    QFileInfo file(desktopFile);
-    item->id = file.baseName();
+    // First use filename as the id of the item.
+    // Why not use exec? Because exec contains the file path,
+    // QSettings will have problems, resulting in unrecognized next time.
+    QFileInfo fi(desktopFile);
+    item->id = fi.baseName();
 
-    m_Items.append(item);
+    m_appItems << item;
     endInsertRows();
 
-    savePinAndUnpinList();
+    savePinAndUnPinList();
 
     emit itemAdded();
     emit countChanged();
 }
 
-void AppModel::removeItem(const QString &desktopFile)
+void ApplicationModel::removeItem(const QString &desktopFile)
 {
-    ApplicationItem *item = findItembyDesktop(desktopFile);
+    ApplicationItem *item = findItemByDesktop(desktopFile);
 
     if (item) {
-        AppModel::unPin(item->id);
+        ApplicationModel::unPin(item->id);
     }
 }
 
-bool AppModel::desktopContains(const QString &desktopFile)
+bool ApplicationModel::desktopContains(const QString &desktopFile)
 {
     if (desktopFile.isEmpty())
         return false;
 
-    return findItembyDesktop(desktopFile) != nullptr;
+    return findItemByDesktop(desktopFile) != nullptr;
 }
 
-bool AppModel::isDesktopPinned(const QString &desktopFile)
+bool ApplicationModel::isDesktopPinned(const QString &desktopFile)
 {
-    ApplicationItem *item = findItembyDesktop(desktopFile);
+    ApplicationItem *item = findItemByDesktop(desktopFile);
 
     if (item) {
         return item->isPinned;
@@ -124,23 +131,28 @@ bool AppModel::isDesktopPinned(const QString &desktopFile)
     return false;
 }
 
-void AppModel::clicked(const QString &id)
+void ApplicationModel::clicked(const QString &id)
 {
-    ApplicationItem *item = findItembyId(id);
+    ApplicationItem *item = findItemById(id);
 
     if (!item)
         return;
 
-    if (item->wids.isEmpty()){
+    // Application Item that has been pinned,
+    // We need to open it.
+    if (item->wids.isEmpty()) {
+        // open application
         openNewInstance(item->id);
     }
-
-    else if (item->wids.count() > 1){
+    // Multiple windows have been opened and need to switch between them,
+    // The logic here needs to be improved.
+    else if (item->wids.count() > 1) {
         item->currentActive++;
 
-        if (item->currentActive == item->wids.count()) item->currentActive = 0;
+        if (item->currentActive == item->wids.count())
+            item->currentActive = 0;
 
-        m_iface->forceActiveWindow(item->wids.count());
+        m_iface->forceActiveWindow(item->wids.at(item->currentActive));
     } else if (m_iface->activeWindow() == item->wids.first()) {
         m_iface->minimizeWindow(item->wids.first());
     } else {
@@ -148,9 +160,9 @@ void AppModel::clicked(const QString &id)
     }
 }
 
-void AppModel::raiseWindow(const QString &id)
+void ApplicationModel::raiseWindow(const QString &id)
 {
-    ApplicationItem *item = findItembyId(id);
+    ApplicationItem *item = findItemById(id);
 
     if (!item)
         return;
@@ -158,9 +170,9 @@ void AppModel::raiseWindow(const QString &id)
     m_iface->forceActiveWindow(item->wids.at(item->currentActive));
 }
 
-bool AppModel::openNewInstance(const QString &appId)
+bool ApplicationModel::openNewInstance(const QString &appId)
 {
-    ApplicationItem *item = findItembyId(appId);
+    ApplicationItem *item = findItemById(appId);
 
     if (!item)
         return false;
@@ -170,8 +182,11 @@ bool AppModel::openNewInstance(const QString &appId)
         QString exec = args.first();
         args.removeFirst();
 
-        if (!args.isEmpty()) ProcessProvider::startDetached(exec, args);
-        else ProcessProvider::startDetached(exec);
+        if (!args.isEmpty()) {
+            ProcessProvider::startDetached(exec, args);
+        } else {
+            ProcessProvider::startDetached(exec);
+        }
     } else {
         ProcessProvider::startDetached(appId);
     }
@@ -179,22 +194,34 @@ bool AppModel::openNewInstance(const QString &appId)
     return true;
 }
 
-void AppModel::pin(const QString &appId)
+void ApplicationModel::closeAllByAppId(const QString &appId)
 {
-    ApplicationItem *item = findItembyId(appId);
+    ApplicationItem *item = findItemById(appId);
 
-    if(!item)
+    if (!item)
+        return;
+
+    for (quint64 wid : item->wids) {
+        m_iface->closeWindow(wid);
+    }
+}
+
+void ApplicationModel::pin(const QString &appId)
+{
+    ApplicationItem *item = findItemById(appId);
+
+    if (!item)
         return;
 
     item->isPinned = true;
 
     handleDataChangedFromItem(item);
-    savePinAndUnpinList();
+    savePinAndUnPinList();
 }
 
-void AppModel::unPin(const QString &appId)
+void ApplicationModel::unPin(const QString &appId)
 {
-    ApplicationItem *item = findItembyId(appId);
+    ApplicationItem *item = findItemById(appId);
 
     if (!item)
         return;
@@ -202,11 +229,12 @@ void AppModel::unPin(const QString &appId)
     item->isPinned = false;
     handleDataChangedFromItem(item);
 
-    if (item->wids.isEmpty()){
+    // Need to be removed after unpin
+    if (item->wids.isEmpty()) {
         int index = indexOf(item->id);
-        if (index != -1){
+        if (index != -1) {
             beginRemoveRows(QModelIndex(), index, index);
-            m_Items.removeAll(item);
+            m_appItems.removeAll(item);
             endRemoveRows();
 
             emit itemRemoved();
@@ -214,13 +242,14 @@ void AppModel::unPin(const QString &appId)
         }
     }
 
-    savePinAndUnpinList();
+    savePinAndUnPinList();
 }
 
-void AppModel::updateGeometries(const QString &id, QRect rect)
+void ApplicationModel::updateGeometries(const QString &id, QRect rect)
 {
-    ApplicationItem *item = findItembyId(id);
+    ApplicationItem *item = findItemById(id);
 
+    // If not found
     if (!item)
         return;
 
@@ -229,12 +258,12 @@ void AppModel::updateGeometries(const QString &id, QRect rect)
     }
 }
 
-void AppModel::move(int from, int to)
+void ApplicationModel::move(int from, int to)
 {
     if (from == to)
         return;
 
-    m_Items.move(from, to);
+    m_appItems.move(from, to);
 
     if (from < to)
         beginMoveRows(QModelIndex(), from, from, QModelIndex(), to + 1);
@@ -244,18 +273,21 @@ void AppModel::move(int from, int to)
     endMoveRows();
 }
 
-ApplicationItem *AppModel::findItembyDesktop(const QString &desktop)
+ApplicationItem *ApplicationModel::findItemByWId(quint64 wid)
 {
-    for (ApplicationItem *item : m_Items) {
-        if (item->desktopPath == desktop) return item;
+    for (ApplicationItem *item : m_appItems) {
+        for (quint64 winId : item->wids) {
+            if (winId == wid)
+                return item;
+        }
     }
 
     return nullptr;
 }
 
-ApplicationItem *AppModel::findItembyId(const QString &id)
+ApplicationItem *ApplicationModel::findItemById(const QString &id)
 {
-    for (ApplicationItem *item : m_Items) {
+    for (ApplicationItem *item : m_appItems) {
         if (item->id == id)
             return item;
     }
@@ -263,22 +295,19 @@ ApplicationItem *AppModel::findItembyId(const QString &id)
     return nullptr;
 }
 
-ApplicationItem *AppModel::findItembyWId(quint64 wid)
+ApplicationItem *ApplicationModel::findItemByDesktop(const QString &desktop)
 {
-    for (ApplicationItem *item : m_Items) {
-        for (quint64 winId : item->wids) {
-            if (winId == wid){
-                return item;
-            }
-        }
+    for (ApplicationItem *item : m_appItems) {
+        if (item->desktopPath == desktop)
+            return item;
     }
 
     return nullptr;
 }
 
-bool AppModel::contains(const QString &id)
+bool ApplicationModel::contains(const QString &id)
 {
-    for (ApplicationItem *item : m_Items) {
+    for (ApplicationItem *item : qAsConst(m_appItems)) {
         if (item->id == id)
             return true;
     }
@@ -286,31 +315,31 @@ bool AppModel::contains(const QString &id)
     return false;
 }
 
-int AppModel::indexOf(const QString &id)
+int ApplicationModel::indexOf(const QString &id)
 {
-    for (ApplicationItem *item : m_Items){
-        if (item->id == id){
-            return m_Items.indexOf(item);
-        }
+    for (ApplicationItem *item : m_appItems) {
+        if (item->id == id)
+            return m_appItems.indexOf(item);
     }
 
     return -1;
 }
 
-void AppModel::initPinnedApplications()
+void ApplicationModel::initPinnedApplications()
 {
     QSettings settings(QSettings::UserScope, "avdan-de", "pinnedDock");
     QSettings systemSettings("/etc/avdan-de-dock-list.conf", QSettings::IniFormat);
-    QSettings *set = (QFile(settings.fileName()).exists()) ? &settings : &systemSettings;
-
+    QSettings *set = (QFile(settings.fileName()).exists()) ? &settings
+                                                           : &systemSettings;
     QStringList groups = set->childGroups();
 
-    for (int i=0; i < groups.size(); ++i) {
-        for (const QString &id : groups){
+    // Pinned Apps
+    for (int i = 0; i < groups.size(); ++i) {
+        for (const QString &id : groups) {
             set->beginGroup(id);
             int index = set->value("Index").toInt();
 
-            if (index == i){
+            if (index == i) {
                 beginInsertRows(QModelIndex(), rowCount(), rowCount());
                 ApplicationItem *item = new ApplicationItem;
 
@@ -323,6 +352,7 @@ void AppModel::initPinnedApplications()
                     continue;
                 }
 
+                // Read from desktop file.
                 if (!item->desktopPath.isEmpty()) {
                     QMap<QString, QString> desktopInfo = Utils::instance()->readInfoFromDesktop(item->desktopPath);
                     item->iconName = desktopInfo.value("Icon");
@@ -330,6 +360,7 @@ void AppModel::initPinnedApplications()
                     item->exec = desktopInfo.value("Exec");
                 }
 
+                // Read from config file.
                 if (item->iconName.isEmpty())
                     item->iconName = set->value("Icon").toString();
 
@@ -339,7 +370,7 @@ void AppModel::initPinnedApplications()
                 if (item->exec.isEmpty())
                     item->exec = set->value("Exec").toString();
 
-                m_Items.append(item);
+                m_appItems.append(item);
                 endInsertRows();
 
                 emit itemAdded();
@@ -354,43 +385,74 @@ void AppModel::initPinnedApplications()
     }
 }
 
-void AppModel::handleDataChangedFromItem(ApplicationItem *item)
+void ApplicationModel::savePinAndUnPinList()
 {
-    if (!item) return;
+    QSettings settings(QSettings::UserScope, "avdan-de", "pinnedDock");
+    settings.clear();
+
+    int index = 0;
+
+    for (ApplicationItem *item : m_appItems) {
+        if (item->isPinned) {
+            settings.beginGroup(item->id);
+            settings.setValue("Index", index);
+            settings.setValue("Icon", item->iconName);
+            settings.setValue("VisibleName", item->visibleName);
+            settings.setValue("Exec", item->exec);
+            settings.setValue("DesktopPath", item->desktopPath);
+            settings.endGroup();
+            ++index;
+        }
+    }
+
+    settings.sync();
+}
+
+void ApplicationModel::handleDataChangedFromItem(ApplicationItem *item)
+{
+    if (!item)
+        return;
 
     QModelIndex idx = index(indexOf(item->id), 0, QModelIndex());
 
-    if (idx.isValid()) emit dataChanged(idx, idx);
+    if (idx.isValid()) {
+        emit dataChanged(idx, idx);
+    }
 }
 
-void AppModel::onWindowAdded(quint64 wid)
+void ApplicationModel::onWindowAdded(quint64 wid)
 {
     QMap<QString, QVariant> info = m_iface->requestInfo(wid);
     const QString id = info.value("id").toString();
 
     QString desktopPath = m_iface->desktopFilePath(wid);
-    ApplicationItem *desktopItem = findItembyDesktop(desktopPath);
+    ApplicationItem *desktopItem = findItemByDesktop(desktopPath);
+    
+    // Use desktop find
     if (!desktopPath.isEmpty() && desktopItem != nullptr) {
         desktopItem->wids.append(wid);
+        // Need to update application active status.
         desktopItem->isActive = info.value("active").toBool();
 
         if (desktopItem->id != id) {
             desktopItem->id = id;
-
-            savePinAndUnpinList();
+            savePinAndUnPinList();
         }
 
         handleDataChangedFromItem(desktopItem);
     }
+    // Find from id
     else if (contains(id)) {
-        for (ApplicationItem *item : m_Items) {
+        for (ApplicationItem *item : m_appItems) {
             if (item->id == id) {
                 item->wids.append(wid);
+                // Need to update application active status.
                 item->isActive = info.value("active").toBool();
                 handleDataChangedFromItem(item);
             }
         }
     }
+    // New item needs to be added.
     else {
         beginInsertRows(QModelIndex(), rowCount(), rowCount());
         ApplicationItem *item = new ApplicationItem;
@@ -408,8 +470,7 @@ void AppModel::onWindowAdded(quint64 wid)
             item->desktopPath = desktopPath;
         }
 
-        m_Items.append(item);
-
+        m_appItems << item;
         endInsertRows();
 
         emit itemAdded();
@@ -417,13 +478,14 @@ void AppModel::onWindowAdded(quint64 wid)
     }
 }
 
-void AppModel::onWindowRemoved(quint64 wid)
+void ApplicationModel::onWindowRemoved(quint64 wid)
 {
-    ApplicationItem *item = findItembyWId(wid);
+    ApplicationItem *item = findItemByWId(wid);
 
     if (!item)
         return;
 
+    // Remove from wid list.
     item->wids.removeOne(wid);
 
     if (item->currentActive >= item->wids.size())
@@ -432,6 +494,7 @@ void AppModel::onWindowRemoved(quint64 wid)
     handleDataChangedFromItem(item);
 
     if (item->wids.isEmpty()) {
+        // If it is not fixed to the dock, need to remove it.
         if (!item->isPinned) {
             int index = indexOf(item->id);
 
@@ -439,7 +502,7 @@ void AppModel::onWindowRemoved(quint64 wid)
                 return;
 
             beginRemoveRows(QModelIndex(), index, index);
-            m_Items.removeAll(item);
+            m_appItems.removeAll(item);
             endRemoveRows();
 
             emit itemRemoved();
@@ -448,9 +511,12 @@ void AppModel::onWindowRemoved(quint64 wid)
     }
 }
 
-void AppModel::onActiveChanged(quint64 wid)
+void ApplicationModel::onActiveChanged(quint64 wid)
 {
-    for (ApplicationItem *item : m_Items) {
+    // Using this method will cause the listview scrollbar to reset.
+    // beginResetModel();
+
+    for (ApplicationItem *item : m_appItems) {
         if (item->isActive != item->wids.contains(wid)) {
             item->isActive = item->wids.contains(wid);
 
@@ -460,27 +526,4 @@ void AppModel::onActiveChanged(quint64 wid)
             }
         }
     }
-}
-
-void AppModel::savePinAndUnpinList()
-{
-    QSettings settings(QSettings::UserScope, "avdan-de","pinnedDock");
-    settings.clear();
-
-    int index = 0;
-
-    for (ApplicationItem *item : m_Items) {
-        if (item->isPinned) {
-            settings.beginGroup(item->id);
-            settings.setValue("Index", index);
-            settings.setValue("Icon", item->iconName);
-            settings.setValue("VisibleName", item->visibleName);
-            settings.setValue("Exec", item->exec);
-            settings.setValue("DesktopPath", item->desktopPath);
-            settings.endGroup();
-            ++index;
-        }
-    }
-
-    settings.sync();
 }

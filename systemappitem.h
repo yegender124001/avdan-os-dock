@@ -6,6 +6,7 @@
 class SystemAppItem : public QObject
 {
     Q_OBJECT
+
 public:
     explicit SystemAppItem(QObject *parent = nullptr);
 

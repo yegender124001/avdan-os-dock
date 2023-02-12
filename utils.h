@@ -9,23 +9,26 @@ class SystemAppMonitor;
 class Utils : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit Utils(QObject *parent = nullptr);
-    struct AppData{
-        QString id;
-        QString name;
-        QString genericName;
+    struct AppData
+    {
+        QString id; // Application id (*.desktop sans extension).
+        QString name; // Application name.
+        QString genericName; // Generic application name.
         QIcon icon;
         QUrl url;
         bool skipTaskbar = false;
     };
 
-    enum UrlComparisionMode {
-        Strict = 0,
-        IgniteQueryItems
+    enum UrlComparisonMode {
+         Strict = 0,
+         IgnoreQueryItems
     };
 
     static Utils *instance();
+
+    explicit Utils(QObject *parent = nullptr);
 
     QStringList commandFromPid(quint32 pid);
     QString desktopPathFromMetadata(const QString &appId, quint32 pid = 0,

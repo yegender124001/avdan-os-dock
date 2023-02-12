@@ -1,22 +1,30 @@
 #include "utils.h"
-#include "qfileinfo.h"
 #include "systemappmonitor.h"
+#include "systemappitem.h"
+
 #include <QFile>
-#include <QMap>
+#include <QFileInfo>
+#include <QUrlQuery>
+#include <QSettings>
+#include <QDebug>
+
+#include <KWindowSystem>
+
 static Utils *INSTANCE = nullptr;
+
+Utils *Utils::instance()
+{
+    if (!INSTANCE)
+        INSTANCE = new Utils;
+
+    return INSTANCE;
+}
 
 Utils::Utils(QObject *parent)
     : QObject(parent)
     , m_sysAppMonitor(SystemAppMonitor::self())
 {
 
-}
-
-Utils *Utils::instance()
-{
-    if (!INSTANCE)
-        INSTANCE = new Utils;
-    return INSTANCE;
 }
 
 QStringList Utils::commandFromPid(quint32 pid)
@@ -26,10 +34,12 @@ QStringList Utils::commandFromPid(quint32 pid)
     if (file.open(QIODevice::ReadOnly)) {
         QByteArray cmd = file.readAll();
 
-        if(!cmd.isEmpty()) {
+        // ref: https://github.com/KDE/kcoreaddons/blob/230c98aa7e01f9e36a9c2776f3633182e6778002/src/lib/util/kprocesslist_unix.cpp#L137
+        if (!cmd.isEmpty()) {
+            // extract non-truncated name from cmdline
             int zeroIndex = cmd.indexOf('\0');
             int processNameStart = cmd.lastIndexOf('/', zeroIndex);
-            if (processNameStart == -1 ){
+            if (processNameStart == -1) {
                 processNameStart = 0;
             } else {
                 processNameStart++;
@@ -37,16 +47,18 @@ QStringList Utils::commandFromPid(quint32 pid)
 
             QString name = QString::fromLocal8Bit(cmd.mid(processNameStart, zeroIndex - processNameStart));
 
+            // reion: Remove parameters
             name = name.split(' ').first();
 
-            cmd.replace('\0',' ');
+            cmd.replace('\0', ' ');
             QString command = QString::fromLocal8Bit(cmd).trimmed();
 
+            // There may be parameters.
             if (command.split(' ').size() > 1) {
                 command = command.split(' ').first();
             }
 
-            return {command, name};
+            return { command, name };
         }
     }
 
@@ -140,4 +152,3 @@ QMap<QString, QString> Utils::readInfoFromDesktop(const QString &desktopFile)
 
     return info;
 }
-

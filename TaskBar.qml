@@ -24,33 +24,24 @@ DockWindow{
         y:5
         /*Pinned Apps*/
         Repeater{
-            //model:ListModel{
-            //    ListElement{iconName:"konsole"}
-            //    ListElement{iconName:"qtcreator"}
-            //    ListElement{iconName:"kate"}
-            //    ListElement{iconName:"kcalc"}
-            //}
-            //model:appModel
-            //delegate:DockItem{
-            //    icon.name:model.iconName
-            //    icon.color:"transparent"
-            //    icon.width: 48
-            //    icon.height: 48
-            //}
             id: repeater
-            model:5
+            model:appModel
             DockItem{
-                icon.name:model.iconName ? model.iconName : "application-x-desktop"
+                icon.name:model.iconName
                 icon.width: 48
                 icon.height: 48
-                onClicked: repeater.model += 5
+                icon.color:"transparent"
+                onClicked: appModel.raiseWindow(model.appId)
+                Rectangle{
+                    color:model.isActive ? "#44ff44" : "white"
+                    anchors.bottom:parent.bottom
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width:parent.width-10
+                    height:3
+                    radius:height
+                }
             }
         }
-        //Rectangle{
-        //    anchors.verticalCenter: parent.verticalCenter
-        //    width: 1
-        //    height:30
-        //}
     }
     
 }

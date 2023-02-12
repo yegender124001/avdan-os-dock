@@ -1,18 +1,16 @@
-#ifndef APPMODEL_H
-#define APPMODEL_H
+#ifndef APPLICATIONMODEL_H
+#define APPLICATIONMODEL_H
 
+#include <QAbstractListModel>
 #include "applicationitem.h"
 #include "systemappmonitor.h"
-#include <QAbstractListModel>
 #include "xwindowinterface.h"
 
-class AppModel : public QAbstractListModel
+class ApplicationModel : public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    explicit AppModel(QObject *parent = nullptr);
-
     enum Roles {
         AppIdRole = Qt::UserRole + 1,
         IconNameRole,
@@ -24,7 +22,9 @@ public:
         FixedItemRole
     };
 
-    int rowCount(const QModelIndex &parent) const override;
+    explicit ApplicationModel(QObject *parent = nullptr);
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
@@ -33,33 +33,35 @@ public:
     bool desktopContains(const QString &desktopFile);
     bool isDesktopPinned(const QString &desktopFile);
 
-    Q_INVOKABLE void save() { savePinAndUnpinList(); }
+    Q_INVOKABLE void save() { savePinAndUnPinList(); }
 
     Q_INVOKABLE void clicked(const QString &id);
     Q_INVOKABLE void raiseWindow(const QString &id);
 
     Q_INVOKABLE bool openNewInstance(const QString &appId);
-
+    Q_INVOKABLE void closeAllByAppId(const QString &appId);
     Q_INVOKABLE void pin(const QString &appId);
     Q_INVOKABLE void unPin(const QString &appId);
 
     Q_INVOKABLE void updateGeometries(const QString &id, QRect rect);
 
     Q_INVOKABLE void move(int from, int to);
+
 signals:
     void countChanged();
+
     void itemAdded();
     void itemRemoved();
 
 private:
-    ApplicationItem *findItembyDesktop(const QString &desktopFile);
-    ApplicationItem *findItembyId(const QString &id);
-    ApplicationItem *findItembyWId(const quint64 wid);
+    ApplicationItem *findItemByWId(quint64 wid);
+    ApplicationItem *findItemById(const QString &id);
+    ApplicationItem *findItemByDesktop(const QString &desktop);
 
     bool contains(const QString &id);
     int indexOf(const QString &id);
     void initPinnedApplications();
-    void savePinAndUnpinList();
+    void savePinAndUnPinList();
 
     void handleDataChangedFromItem(ApplicationItem *item);
 
@@ -67,9 +69,10 @@ private:
     void onWindowRemoved(quint64 wid);
     void onActiveChanged(quint64 wid);
 
-    QList<ApplicationItem *> m_Items;
+private:
     XWindowInterface *m_iface;
     SystemAppMonitor *m_sysAppMonitor;
+    QList<ApplicationItem *> m_appItems;
 };
 
-#endif // APPMODEL_H
+#endif // APPLICATIONMODEL_H
