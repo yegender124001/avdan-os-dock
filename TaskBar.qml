@@ -1,8 +1,12 @@
 import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls 1.0
 import Dock 1.0
+import QtQuick.Window 2.15
 DockWindow{
     width: itemRow0.width+10
     height:50
+    id: root
     Rectangle{
         color:bgColor
         radius: 5
@@ -26,13 +30,47 @@ DockWindow{
             id: repeater
             model:appModel
             DockItem{
+                RightMenu{
+                    id: rightMenu
+                }
+                id: item
                 icon.name:model.iconName
                 icon.width: 60
                 icon.height: 60
                 width: 50
                 height:50
                 icon.color:"transparent"
-                onClicked: appModel.clicked(model.appId)
+                MouseArea{
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onClicked: {
+                        if (mouse.button === Qt.RightButton) {
+                            rightMenu.x = item.mapToGlobal(0, 0).x + (item.width/2) - (rightMenu.width/2);
+                            rightMenu.y = Screen.height - height - root.height - 20;
+                            rightMenu.visible = true;
+                        }
+                        else
+                            appModel.clicked(model.appId)
+                    }
+                }
+                Rectangle{
+                    color:"#88000000"
+                    radius:height
+                    border.color: "#444"
+                    border.width: 1
+                    width: 20
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    visible: model.windowCount > 1
+                    z:1
+                    height:20
+                    Label{
+                        color:"white"
+                        text:model.windowCount
+                        anchors.centerIn: parent
+                    }
+                }
+
                 Rectangle{
                     color:model.isActive ? "#44ff44" : "white"
                     anchors.bottom:parent.bottom

@@ -2,11 +2,13 @@
 #include <kwindoweffects.h>
 #include <kx11extras.h>
 #include <QPainterPath>
+#include <KWindowSystem>
 HamburgerMenu::HamburgerMenu()
 {
     setColor(QColor("transparent"));
     setFlags(Qt::FramelessWindowHint);
     KX11Extras::setOnDesktop(winId(), NET::OnAllDesktops);
+    KWindowSystem::setType(winId(), NET::Menu);
     connect(this, &QQuickWindow::widthChanged, this, &HamburgerMenu::updateBlur);
     connect(this, &QQuickWindow::heightChanged, this, &HamburgerMenu::updateBlur);
 }

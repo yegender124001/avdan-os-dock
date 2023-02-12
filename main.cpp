@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 #endif
     QGuiApplication app(argc, argv);
     qmlRegisterType<Tooltip>("Dock",1,0,"ToolTip");
-    qmlRegisterType<HamburgerMenu>("Dock",1,0,"HaburgerMenu");
+    qmlRegisterType<HamburgerMenu>("Dock",1,0,"HamburgerMenu");
     qmlRegisterType<DockWindow>("Dock",1,0,"DockWindow");
     ApplicationModel model;
     DockWindow dock;
