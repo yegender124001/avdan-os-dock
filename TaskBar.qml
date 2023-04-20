@@ -30,9 +30,6 @@ DockWindow{
             id: repeater
             model:appModel
             DockItem{
-                RightMenu{
-                    id: rightMenu
-                }
                 id: item
                 icon.name:model.iconName
                 icon.width: 60
@@ -45,9 +42,11 @@ DockWindow{
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: {
                         if (mouse.button === Qt.RightButton) {
-                            rightMenu.x = item.mapToGlobal(0, 0).x + (item.width/2) - (rightMenu.width/2);
-                            rightMenu.y = Screen.height - height - root.height - 20;
-                            rightMenu.visible = true;
+                            if (model.isPinned){
+                                appModel.unPin(model.appId)
+                            } else {
+                                appModel.pin(model.appId)
+                            }
                         }
                         else
                             appModel.clicked(model.appId)
@@ -79,6 +78,7 @@ DockWindow{
                     height:3
                     anchors.bottomMargin: 3
                     radius:height
+                    visible: model.windowCount > 0
                 }
             }
         }
