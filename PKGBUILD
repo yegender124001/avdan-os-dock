@@ -1,5 +1,5 @@
 pkgname="avdan-de-dock"
-pkgver="0.0.1"
+pkgver="0.0.2"
 pkgrel="0"
 pkgdesc="Dock like in Avdan OS"
 arch=("x86_64")
